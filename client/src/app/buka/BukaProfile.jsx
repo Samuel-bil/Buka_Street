@@ -9,7 +9,7 @@ import { useUserStore } from "@/store/UserStore";
 import Cookies from "js-cookie";
 import OpeningHoursInput from "./OpeningHoursInput";
 
-const endpoint = "https://buka-store.vercel.app/api/bukas/";
+const endpoint = "https://buka-street.vercel.app/api/bukas/";
 
 const BukaProfile = () => {
   const { details, updateUser } = useUserStore();

@@ -17,7 +17,7 @@ const BukaOrders = () => {
 
   const bukaId = details?._id;
 
-  const endpoint = `https://buka-store.vercel.app/api/orders`;
+  const endpoint = `https://buka-street.vercel.app/api/orders`;
 
   const fetchOrders = async () => {
     try {

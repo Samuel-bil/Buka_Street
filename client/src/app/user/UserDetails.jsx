@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { LogOut, Settings } from "lucide-react";
 import { useUserStore } from "@/store/UserStore";
 
-const endpoint = "https://buka-store.vercel.app/api/users/updateuser";
+const endpoint = "https://buka-street.vercel.app/api/users/updateuser";
 
 function UserDetails() {
   const { details, updateUser } = useUserStore();

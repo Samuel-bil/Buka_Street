@@ -4,8 +4,8 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie"
 
-const endpoint = "https://buka-store.vercel.app/api/users/";
-const buka_endpoint = "https://buka-store.vercel.app/api/bukas/";
+const endpoint = "https://buka-street.vercel.app/api/users/";
+const buka_endpoint = "https://buka-street.vercel.app/api/bukas/";
 
 export const useRegister = (
   firstName,

@@ -64,7 +64,7 @@ const AllProduct = () => {
     if (!isConfirmed) return; // Exit if not confirmed
 
     try {
-      await axios.delete(`https://buka-store.vercel.app/api/cuisines/${id}`, {
+      await axios.delete(`https://buka-street.vercel.app/api/cuisines/${id}`, {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",

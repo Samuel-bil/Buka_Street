@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { useUserStore } from "@/store/UserStore";
 
-const endpoint = "https://buka-store.vercel.app/api/cuisines";
+const endpoint = "https://buka-street.vercel.app/api/cuisines";
 
 const AddItemForm = ({ isOpen, onClose, onAddItem }) => {
   const token = Cookies.get("user");

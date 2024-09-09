@@ -24,7 +24,7 @@ const EditItemForm = ({ isOpen, onClose, onUpdateItem, item }) => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const endpoint = `https://buka-store.vercel.app/api/cuisines/${item?._id}`;
+  const endpoint = `https://buka-street.vercel.app/api/cuisines/${item?._id}`;
 
   useEffect(() => {
     if (item) {

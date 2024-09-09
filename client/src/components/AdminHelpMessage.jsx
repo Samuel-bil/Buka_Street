@@ -8,7 +8,7 @@ const AdminHelpMessage = () => {
   const [visibleCount, setVisibleCount] = useState(5);
   const [hasMore, setHasMore] = useState(false);
 
-  const endpoint = `https://buka-store.vercel.app/api/help_center/admin/messages`;
+  const endpoint = `https://buka-street.vercel.app/api/help_center/admin/messages`;
 
   const getMessages = async () => {
     try {

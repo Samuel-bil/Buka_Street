@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
-const endpoint = `https://buka-store.vercel.app/api/review`;
+const endpoint = `https://buka-street.vercel.app/api/review`;
 
 const GetReviews = () => {
   const token = Cookies.get("user");

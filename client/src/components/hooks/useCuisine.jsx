@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const endpoint = "https://buka-store.vercel.app/api/cuisines";
+const endpoint = "https://buka-street.vercel.app/api/cuisines";
 function useCuisine() {
   const [data, setData] = useState([]);
 

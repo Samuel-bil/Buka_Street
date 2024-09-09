@@ -12,7 +12,7 @@ const AdminUser = () => {
   const [error, setError] = useState("");
   const [data, setData] = useState([]);
 
-  const endpoint = `https://buka-store.vercel.app/api/admin/users`;
+  const endpoint = `https://buka-street.vercel.app/api/admin/users`;
 
   const getUsersWithActivityStats = async () => {
     try {

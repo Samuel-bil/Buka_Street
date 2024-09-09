@@ -23,7 +23,7 @@ const BukaShop = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://buka-store.vercel.app/api/bukas/${details._id}`,
+        `https://buka-street.vercel.app/api/bukas/${details._id}`,
         {
           withCredentials: true,
           headers: {

@@ -17,7 +17,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import ReviewForm from "./ReviewForm";
 
-const endpoint = "https://buka-store.vercel.app/api/users/getuser";
+const endpoint = "https://buka-street.vercel.app/api/users/getuser";
 
 function KitchenPage() {
   const token = Cookies.get("user");

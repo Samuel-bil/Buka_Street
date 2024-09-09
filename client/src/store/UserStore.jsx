@@ -30,7 +30,7 @@ export const useUserStore = create((set) => ({
 
     try {
       const response = await axios.get(
-        "https://buka-store.vercel.app/api/users/getuser",
+        "https://buka-street.vercel.app/api/users/getuser",
         {
           headers: {
             Authorization: `Bearer ${token}`,

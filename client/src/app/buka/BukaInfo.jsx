@@ -55,7 +55,7 @@ const BukaInformation = ({ details, onUpdate }) => {
 
     try {
       const response = await axios.put(
-        `https://buka-store.vercel.app/api/bukas/${details?._id}`,
+        `https://buka-street.vercel.app/api/bukas/${details?._id}`,
         formData,
         {
           withCredentials: true,
@@ -108,7 +108,7 @@ const BukaInformation = ({ details, onUpdate }) => {
 
     try {
       const response = await axios.put(
-        `https://buka-store.vercel.app/api/bukas/${details?._id}`,
+        `https://buka-street.vercel.app/api/bukas/${details?._id}`,
         formData,
         {
           withCredentials: true,

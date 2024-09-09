@@ -32,7 +32,7 @@ const AdminTransaction = () => {
   const [currentDate, setCurrentDate] = useState("");
   const [data, setData] = useState(null);
 
-  const endpoint = `https://buka-store.vercel.app/api/admin/dashboard`;
+  const endpoint = `https://buka-street.vercel.app/api/admin/dashboard`;
 
   const getAdminStats = async () => {
     try {

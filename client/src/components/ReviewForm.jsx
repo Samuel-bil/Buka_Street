@@ -6,7 +6,7 @@ import { DialogOverlay, DialogTitle } from "@radix-ui/react-dialog";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
 
-const endpoint = "https://buka-store.vercel.app/api/review";
+const endpoint = "https://buka-street.vercel.app/api/review";
 
 const ReviewForm = ({ bukaId, isOpen, onClose, setIsModalOpen }) => {
   const token = Cookies.get("user");

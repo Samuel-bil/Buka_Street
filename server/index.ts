@@ -30,7 +30,7 @@ app.use(express.json());
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:5173","https://buka-store-rqvo.vercel.app", "https://buka-store.vercel.app"],
+    origin: ["http://localhost:5173","https://buka-street-gkz2.vercel.app", "https://buka-street.vercel.app"],
   })
 );
 app.use(morgan('dev'));
@@ -70,8 +70,7 @@ const options = {
     },
     servers: [
       {
-        // url: 'http://localhost:5000',
-        url: 'https://buka-store.vercel.app/',
+        url: 'buka-street.vercel.app/',
       },
     ],
     components: {
@@ -96,7 +95,7 @@ const specs = swaggerDocs(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 //============= Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 const CONNECTION_URI = process.env.MONGO_URI || '';
 
 mongoose.set('strictQuery', false);

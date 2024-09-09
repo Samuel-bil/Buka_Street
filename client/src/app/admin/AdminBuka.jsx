@@ -12,7 +12,7 @@ const AdminBuka = () => {
   const [currentDate, setCurrentDate] = useState("");
   const [data, setData] = useState([]);
 
-  const endpoint = `https://buka-store.vercel.app/api/admin/bukas`;
+  const endpoint = `https://buka-street.vercel.app/api/admin/bukas`;
 
   const getAdminStats = async () => {
     try {

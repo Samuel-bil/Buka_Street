@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 
-const endpoint = "https://buka-store.vercel.app/api/help_center/send";
+const endpoint = "https://buka-street.vercel.app/api/help_center/send";
 
 const HelpCenterForm = ({ isOpen, onClose }) => {
   const token = Cookies.get("user");

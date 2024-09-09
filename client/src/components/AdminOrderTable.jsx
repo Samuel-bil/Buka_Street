@@ -9,7 +9,7 @@ const AdminOrderTable = () => {
   const [itemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const endpoint = `https://buka-store.vercel.app/api/admin/orders`;
+  const endpoint = `https://buka-street.vercel.app/api/admin/orders`;
 
   const fetchOrders = async () => {
     try {

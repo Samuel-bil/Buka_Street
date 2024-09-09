@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { useUserStore } from "@/store/UserStore";
 
 // Define your endpoints
-const userEndpoint = "https://buka-store.vercel.app/api/users/signin";
-const bukaEndpoint = "https://buka-store.vercel.app/api/bukas/login";
+const userEndpoint = "https://buka-street.vercel.app/api/users/signin";
+const bukaEndpoint = "https://buka-street.vercel.app/api/bukas/login";
 
 export const useLogin = (email, password, setLoading) => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export const useLogin = (email, password, setLoading) => {
     try {
       // Step 1: Fetch user information based on the email to determine their role
       const roleResponse = await axios.post(
-        "https://buka-store.vercel.app/api/users/role",
+        "https://buka-street.vercel.app/api/users/role",
         { email }
       );
       const userRole = roleResponse.data.role;

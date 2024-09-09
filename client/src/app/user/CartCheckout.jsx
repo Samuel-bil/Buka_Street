@@ -10,7 +10,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import Cookies from "js-cookie";
 import { useUserStore } from "@/store/UserStore";
 
-const endpoint = "https://buka-store.vercel.app/api/orders/";
+const endpoint = "https://buka-street.vercel.app/api/orders/";
 
 const CartCheckout = () => {
   // fetching cuisines from cookies
@@ -67,7 +67,7 @@ const CartCheckout = () => {
       const { id } = response.data;
 
       const stripe = await loadStripe(
-        "pk_test_51MOfapIgrifBGT4dyD6usmKJYxwo1wVrP3Icn7qt0spq6ol8E3HANGZAazjf68mJ2UGMhuoogNe9HOEheedQ2m1V00VsKHfZbQ"
+        "pk_test_51PutKmRoar6ifmou2hZxNAEztJcRpZhmoSGJPZ55WYM2aU7pe36rniKJRCBpEyd4GDMrh01d2RUj3hWpRsbjmCV500Q0jdqjSN"
       );
       // Redirect to Stripe Checkout
       const result = await stripe.redirectToCheckout({ sessionId: id });
