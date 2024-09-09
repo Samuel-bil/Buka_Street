@@ -23,7 +23,7 @@ import webhookRoute from './routes/webhook_route'
 const app = express();
 
 // ============= Webhook Route 
-// app.use("/api", webhookRoute);
+app.use("/api", webhookRoute);
 
 //============= Middlewares
 app.use(express.json());
@@ -54,7 +54,6 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/admin', adminRoutes);
 app.use("/api/users", getUserRole);
 
-app.use("/api", webhookRoute);
 
 //============= Swagger UI Docs
 const options = {
