@@ -20,13 +20,28 @@ const cuisine_model_1 = __importDefault(require("../models/cuisine_model"));
  * @access  Private
  */
 const createCuisine = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     try {
-        const newCuisine = new cuisine_model_1.default(req.body);
+        // Get the file path if the image is uploaded
+        const imagePath = req.file ? req.file.path : req.body.image || '';
+        if (!imagePath) {
+            return res.status(400).json({ message: 'Image is required' });
+        }
+        // Check file size and format if necessary
+        const fileSize = (_b = (_a = req === null || req === void 0 ? void 0 : req.file) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0;
+        if (fileSize > 5 * 1024 * 1024) { // Check for 5MB limit
+            return res.status(400).json({ message: 'File size exceeds limit' });
+        }
+        // Create a new cuisine with the uploaded image path
+        const newCuisine = new cuisine_model_1.default(Object.assign(Object.assign({}, req.body), { 
+            // Use uploaded image if available, else use default
+            image: imagePath }));
         yield newCuisine.save();
         res.status(201).json(newCuisine);
     }
     catch (error) {
         res.status(500).json({ message: 'Failed to create cuisine', error });
+        console.log(error.message);
     }
 });
 exports.createCuisine = createCuisine;
@@ -72,7 +87,8 @@ exports.getCuisineById = getCuisineById;
  */
 const updateCuisine = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const updatedCuisine = yield cuisine_model_1.default.findByIdAndUpdate(req.params.id, req.body, {
+        const updatedData = Object.assign(Object.assign({}, req.body), { image: req.file ? req.file.path : req.body.image });
+        const updatedCuisine = yield cuisine_model_1.default.findByIdAndUpdate(req.params.id, updatedData, {
             new: true,
             runValidators: true,
         });

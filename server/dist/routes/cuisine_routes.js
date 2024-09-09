@@ -58,7 +58,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const express_1 = __importDefault(require("express"));
 const cuisine_handler_1 = require("../handlers/cuisine_handler");
-const auth_1 = __importDefault(require("../middleware/auth"));
+const auth_1 = require("../middleware/auth");
+const multer_1 = __importDefault(require("../middleware/multer"));
 const router = express_1.default.Router();
 /**
  * @swagger
@@ -80,7 +81,9 @@ const router = express_1.default.Router();
  *       400:
  *         description: Bad request
  */
-router.post('/', auth_1.default, cuisine_handler_1.createCuisine);
+// router.post('/', protect, createCuisine);
+// Route for creating cuisine with image upload
+router.post('/', auth_1.protect, multer_1.default.single('image'), cuisine_handler_1.createCuisine);
 /**
  * @swagger
  * /api/cuisines:
@@ -151,7 +154,7 @@ router.get('/:id', cuisine_handler_1.getCuisineById);
  *       404:
  *         description: Cuisine not found
  */
-router.put('/:id', auth_1.default, cuisine_handler_1.updateCuisine);
+router.put('/:id', auth_1.protect, multer_1.default.single('image'), cuisine_handler_1.updateCuisine);
 /**
  * @swagger
  * /api/cuisines/{id}:
@@ -173,5 +176,5 @@ router.put('/:id', auth_1.default, cuisine_handler_1.updateCuisine);
  *       404:
  *         description: Cuisine not found
  */
-router.delete('/:id', auth_1.default, cuisine_handler_1.deleteCuisine);
+router.delete('/:id', auth_1.protect, cuisine_handler_1.deleteCuisine);
 exports.default = router;

@@ -95,7 +95,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const buka_owner_handler_1 = require("../handlers/buka_owner_handler");
-const auth_1 = __importDefault(require("../middleware/auth"));
+const auth_1 = require("../middleware/auth");
+const multer_1 = __importDefault(require("../middleware/multer"));
 const router = express_1.default.Router();
 /**
  * @swagger
@@ -170,7 +171,7 @@ router.post('/login', buka_owner_handler_1.loginBuka);
  *       404:
  *         description: Buka not found
  */
-router.get('/:id', auth_1.default, buka_owner_handler_1.getSingleBuka);
+router.get('/:id', auth_1.protect, buka_owner_handler_1.getSingleBuka);
 /**
  * @swagger
  * /api/bukas/{id}:
@@ -200,5 +201,71 @@ router.get('/:id', auth_1.default, buka_owner_handler_1.getSingleBuka);
  *       404:
  *         description: Buka not found
  */
-router.put('/:id', auth_1.default, buka_owner_handler_1.updateBuka);
+router.put('/:id', auth_1.protect, multer_1.default.single('image'), buka_owner_handler_1.updateBuka);
+/**
+ * @swagger
+ * /api/bukas:
+ *   get:
+ *     summary: Get all Bukas
+ *     tags: [Bukas]
+ *     responses:
+ *       200:
+ *         description: List of all Bukas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Buka'
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/', auth_1.protect, buka_owner_handler_1.getAllBukas);
+router.get('/:bukaId/reviews', buka_owner_handler_1.getBukaReviews);
 exports.default = router;
+// /**
+//  * @swagger
+//  * /api/bukas:
+//  *   get:
+//  *     summary: Get all Bukas with pagination
+//  *     tags: [Bukas]
+//  *     parameters:
+//  *       - in: query
+//  *         name: page
+//  *         schema:
+//  *           type: integer
+//  *           default: 1
+//  *         description: The page number for pagination
+//  *       - in: query
+//  *         name: limit
+//  *         schema:
+//  *           type: integer
+//  *           default: 10
+//  *         description: The number of Bukas to retrieve per page
+//  *     responses:
+//  *       200:
+//  *         description: List of all Bukas with pagination details
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 bukas:
+//  *                   type: array
+//  *                   items:
+//  *                     $ref: '#/components/schemas/Buka'
+//  *                 total:
+//  *                   type: integer
+//  *                   description: The total number of Bukas
+//  *                   example: 100
+//  *                 page:
+//  *                   type: integer
+//  *                   description: The current page number
+//  *                   example: 1
+//  *                 limit:
+//  *                   type: integer
+//  *                   description: The number of Bukas per page
+//  *                   example: 10
+//  *       500:
+//  *         description: Internal server error
+//  */

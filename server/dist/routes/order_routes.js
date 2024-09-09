@@ -74,7 +74,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const order_handler_1 = require("../handlers/order_handler");
-const auth_1 = __importDefault(require("../middleware/auth"));
+const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
 /**
  * @swagger
@@ -96,7 +96,7 @@ const router = express_1.default.Router();
  *       400:
  *         description: Bad request
  */
-router.post('/create', auth_1.default, order_handler_1.createOrder);
+router.post('/create', auth_1.protect, order_handler_1.createOrder);
 /**
  * @swagger
  * /api/orders/{id}:
@@ -122,7 +122,7 @@ router.post('/create', auth_1.default, order_handler_1.createOrder);
  *       404:
  *         description: Order not found
  */
-router.get('/:id', auth_1.default, order_handler_1.getOrder);
+router.get('/:id', auth_1.protect, order_handler_1.getOrder);
 /**
  * @swagger
  * /api/orders/update/{id}:
@@ -152,7 +152,7 @@ router.get('/:id', auth_1.default, order_handler_1.getOrder);
  *       404:
  *         description: Order not found
  */
-router.patch('/update/:id', auth_1.default, order_handler_1.updateOrder);
+router.put('/update/:id', auth_1.protect, order_handler_1.updateOrder);
 /**
  * @swagger
  * /api/orders/delete/{id}:
@@ -174,7 +174,7 @@ router.patch('/update/:id', auth_1.default, order_handler_1.updateOrder);
  *       404:
  *         description: Order not found
  */
-router.delete('/delete/:id', auth_1.default, order_handler_1.deleteOrder);
+router.delete('/delete/:id', auth_1.protect, order_handler_1.deleteOrder);
 /**
  * @swagger
  * /api/orders:
@@ -193,5 +193,6 @@ router.delete('/delete/:id', auth_1.default, order_handler_1.deleteOrder);
  *               items:
  *                 $ref: '#/components/schemas/Order'
  */
-router.get('/', auth_1.default, order_handler_1.getAllOrders);
+router.get('/', auth_1.protect, order_handler_1.getAllOrders);
+router.post('/create-checkout-session', auth_1.protect, order_handler_1.createCheckout);
 exports.default = router;

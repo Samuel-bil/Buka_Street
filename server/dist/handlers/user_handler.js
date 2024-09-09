@@ -12,18 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.changePassword = exports.updateUser = exports.login = exports.register = exports.getUser = void 0;
+exports.getUserRole = exports.logout = exports.changePassword = exports.updateUser = exports.login = exports.register = exports.getUser = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_model_1 = __importDefault(require("../models/user_model"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const buka_owner_model_1 = __importDefault(require("../models/buka_owner_model"));
 /*
  * @desc    Generate a token
  * @access  Private
  */
 const secretKey = process.env.JWT_SECRET;
 const tokenExpiration = process.env.NODE_ENV === 'development' ? '1d' : '7d';
-const generateToken = (id) => {
-    return jsonwebtoken_1.default.sign({ id }, secretKey, {
+const generateToken = (user) => {
+    return jsonwebtoken_1.default.sign({ id: user._id, role: user.role }, secretKey, {
         expiresIn: tokenExpiration,
     });
 };
@@ -33,17 +34,24 @@ const generateToken = (id) => {
  * @access  Private
  */
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
     try {
-        const user = yield user_model_1.default.findById(req.user).select('-password');
+        let user;
+        if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) === "user" || ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) === "admin") {
+            user = yield user_model_1.default.findById((_c = req === null || req === void 0 ? void 0 : req.user) === null || _c === void 0 ? void 0 : _c.id).select('-password');
+        }
+        else {
+            user = yield buka_owner_model_1.default.findById((_d = req === null || req === void 0 ? void 0 : req.user) === null || _d === void 0 ? void 0 : _d.id).select('-password');
+        }
         if (user) {
-            const { _id, first_name, last_name, email, image, phone } = user;
-            res.status(200).json({ _id, first_name, last_name, email, image, phone });
+            res.status(200).json(user);
         }
         else {
             res.status(400).json({ message: 'User not found' });
         }
     }
     catch (error) {
+        console.log("error", error);
         res.status(500).json({ message: 'Something went wrong. Please try again...' });
     }
 });
@@ -80,8 +88,8 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             phone,
             role: role || 'user',
         });
-        // Convert ObjectId to string
-        const token = generateToken(newUser._id.toString());
+        // Generate token with user id and role
+        const token = generateToken({ _id: newUser._id.toString(), role: newUser.role });
         // Set the token in a cookie with the same name as the token
         res.cookie('token', token, {
             path: '/',
@@ -132,21 +140,29 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return res.status(400).json({ message: 'Invalid Email or Password' });
         }
         const isPasswordValid = yield bcryptjs_1.default.compare(password, user.password);
-        // Convert ObjectId to string
-        const token = generateToken(user._id.toString());
-        // Set the token in a cookie with the same name as the token
-        res.cookie('token', token, {
-            path: '/',
-            httpOnly: true,
-            expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
-            sameSite: 'none',
-            secure: true,
-        });
-        if (user && isPasswordValid) {
-            const { _id, first_name, last_name, email, image, phone } = user;
-            res.status(200).json({ message: 'User logged in successfully', user: { _id, first_name, last_name, email, image, phone, token } });
+        if (isPasswordValid) {
+            // Update the user's lastLogin field with the current date and time
+            user.lastLogin = new Date();
+            yield user.save();
+            // Generate a token
+            const token = generateToken({ _id: user._id.toString(), role: user.role });
+            // Set the token in a cookie
+            res.cookie('token', token, {
+                path: '/',
+                httpOnly: true,
+                expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+                sameSite: 'none',
+                secure: true,
+            });
+            // Extract relevant user details to send in the response
+            const { _id, first_name, last_name, email, image, phone, lastLogin, role } = user;
+            res.status(200).json({
+                message: 'User logged in successfully',
+                user: { _id, first_name, last_name, email, image, phone, lastLogin, role, token },
+            });
         }
         else {
+            // If the password is invalid
             res.status(400).json({ message: 'Invalid Email or Password' });
         }
     }
@@ -162,31 +178,37 @@ exports.login = login;
  * @access  Private
  */
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const user = yield user_model_1.default.findById(req.user);
-        if (user) {
-            const { first_name, last_name, email, image, phone } = user;
-            user.email = email;
-            user.first_name = req.body.first_name || first_name;
-            user.last_name = req.body.last_name || last_name;
-            user.image = req.body.image || image;
-            user.phone = req.body.phone || phone;
-            const updatedUser = yield user.save();
-            res.status(200).json({
-                message: 'User updated successfully',
-                user: {
-                    _id: updatedUser._id,
-                    first_name: updatedUser.first_name,
-                    last_name: updatedUser.last_name,
-                    email: updatedUser.email,
-                    image: updatedUser.image,
-                    phone: updatedUser.phone,
-                }
-            });
+        const user = yield user_model_1.default.findById((_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
-        else {
-            res.status(400).json({ message: 'User not found' });
+        let imageUrl = user.image; // Default to the existing image URL
+        if (req.file) {
+            imageUrl = req.file.path; // The Cloudinary URL after upload
         }
+        // Update user fields
+        user.first_name = req.body.first_name || user.first_name;
+        user.last_name = req.body.last_name || user.last_name;
+        user.image = imageUrl; // Use the new or existing image URL
+        user.phone = req.body.phone || user.phone;
+        // Save the updated user
+        const updatedUser = yield user.save();
+        // Generate a new token with the updated user data
+        const token = generateToken({ _id: updatedUser._id.toString(), role: updatedUser.role });
+        res.status(200).json({
+            message: 'User updated successfully',
+            user: {
+                _id: updatedUser._id,
+                first_name: updatedUser.first_name,
+                last_name: updatedUser.last_name,
+                email: updatedUser.email,
+                image: updatedUser.image,
+                phone: updatedUser.phone,
+                token,
+            },
+        });
     }
     catch (error) {
         res.status(500).json({ message: 'Something went wrong. Please try again...' });
@@ -199,8 +221,9 @@ exports.updateUser = updateUser;
  * @access  Private
  */
 const changePassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const user = yield user_model_1.default.findById(req.user);
+        const user = yield user_model_1.default.findById((_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
         const { password, oldPassword } = req.body;
         if (!user) {
             return res.status(400).json({ message: 'User not found, Sign-Up' });
@@ -238,6 +261,30 @@ exports.changePassword = changePassword;
  * @access  Public
  */
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.clearCookie('token').json({ message: 'Logged out successfully' });
+    // Clear all relevant cookies
+    res.clearCookie('user', { path: '/' });
+    res.clearCookie('buka', { path: '/' });
+    res.clearCookie('admin', { path: '/' });
+    res.clearCookie('token', { path: '/' });
+    // Respond with a success message
+    res.json({ message: 'Logged out successfully' });
 });
 exports.logout = logout;
+const getUserRole = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    try {
+        const user = yield user_model_1.default.findOne({ email });
+        if (!user) {
+            const buka = yield buka_owner_model_1.default.findOne({ email });
+            if (!buka) {
+                return res.status(404).json({ message: "User not found" });
+            }
+            return res.status(200).json({ role: buka.role });
+        }
+        res.status(200).json({ role: user.role });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+});
+exports.getUserRole = getUserRole;

@@ -14,14 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const OpeningHoursSchema = new mongoose_1.default.Schema({
-    start: {
-        type: String,
-    },
-    end: {
-        type: String,
-    },
-});
 const BukaSchema = new mongoose_1.default.Schema({
     buka_name: {
         type: String,
@@ -43,7 +35,7 @@ const BukaSchema = new mongoose_1.default.Schema({
     },
     image: {
         type: String,
-        default: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvC1pGhW7_BRwnGuBguLE99tfA0faYflekCA&s',
+        default: 'https://cdn.pixabay.com/photo/2024/02/05/16/07/gas-8554849_1280.jpg',
     },
     phone: {
         type: String,
@@ -65,35 +57,22 @@ const BukaSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: false,
     },
-    opening_hours: {
-        monday: {
-            type: [OpeningHoursSchema],
-            default: [],
+    opening_hours: [
+        {
+            day: String,
+            openingTime: String,
+            closingTime: String,
         },
-        tuesday: {
-            type: [OpeningHoursSchema],
-            default: [],
+    ],
+    reviews: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'Review',
         },
-        wednesday: {
-            type: [OpeningHoursSchema],
-            default: [],
-        },
-        thursday: {
-            type: [OpeningHoursSchema],
-            default: [],
-        },
-        friday: {
-            type: [OpeningHoursSchema],
-            default: [],
-        },
-        saturday: {
-            type: [OpeningHoursSchema],
-            default: [],
-        },
-        sunday: {
-            type: [OpeningHoursSchema],
-            default: [],
-        },
+    ],
+    role: {
+        type: String,
+        default: 'buka',
     },
 }, {
     timestamps: true,

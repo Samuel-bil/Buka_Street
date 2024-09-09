@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.authorize = exports.protect = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const secretKey = process.env.JWT_SECRET;
 const protect = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -21,10 +22,10 @@ const protect = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     const requestToken = cookieToken || ((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1]);
     if (requestToken) {
         try {
-            // verify token
+            // Verify token and cast decoded payload to include id and role
             const decoded = jsonwebtoken_1.default.verify(requestToken, secretKey);
-            // get user id from decoded token
-            req.user = decoded.id;
+            // get user id from decoded token and Assign the id and role to req.user
+            req.user = { id: decoded.id, role: decoded.role };
             // pass user to next middleware
             next();
         }
@@ -37,4 +38,14 @@ const protect = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         res.status(401).json({ message: 'Access denied, no token' });
     }
 });
-exports.default = protect;
+exports.protect = protect;
+const authorize = (...roles) => {
+    return (req, res, next) => {
+        var _a;
+        if (!roles.includes(((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) || '')) {
+            return res.status(403).json({ message: 'Unauthorized Access' });
+        }
+        next();
+    };
+};
+exports.authorize = authorize;

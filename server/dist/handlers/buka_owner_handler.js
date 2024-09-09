@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBuka = exports.getSingleBuka = exports.loginBuka = exports.registerBuka = void 0;
+exports.getBukaReviews = exports.getAllBukas = exports.updateBuka = exports.getSingleBuka = exports.loginBuka = exports.registerBuka = void 0;
 const buka_owner_model_1 = __importDefault(require("../models/buka_owner_model"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -22,8 +22,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
  */
 const secretKey = process.env.JWT_SECRET;
 const tokenExpiration = process.env.NODE_ENV === 'development' ? '1d' : '7d';
-const generateToken = (id) => {
-    return jsonwebtoken_1.default.sign({ id }, secretKey, {
+const generateToken = (user) => {
+    return jsonwebtoken_1.default.sign({ id: user._id, role: user.role }, secretKey, {
         expiresIn: tokenExpiration,
     });
 };
@@ -52,7 +52,7 @@ const registerBuka = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             password,
         });
         // Convert ObjectId to string
-        const token = generateToken(newBuka._id.toString());
+        const token = generateToken({ _id: newBuka._id.toString(), role: newBuka.role });
         // Set the token in a cookie with the same name as the token
         res.cookie('token', token, {
             path: '/',
@@ -98,7 +98,7 @@ const loginBuka = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
         // Convert ObjectId to string
-        const token = generateToken(buka._id.toString());
+        const token = generateToken({ _id: buka._id.toString(), role: buka.role });
         // Set the token in a cookie with the same name as the token
         res.cookie('token', token, {
             path: '/',
@@ -108,11 +108,11 @@ const loginBuka = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             secure: true,
         });
         if (buka && isMatch) {
-            const { _id, buka_name, email, image, phone, address, postcode, pre_order, go_live, opening_hours } = buka;
+            const { _id, buka_name, email, image, phone, address, postcode, pre_order, go_live, opening_hours, role } = buka;
             // Send a success response with the user data (excluding password)
             res.status(200).json({
                 message: 'Buka logged in successfully',
-                user: { _id, buka_name, email, image, phone, address, postcode, pre_order, go_live, opening_hours, token },
+                user: { _id, buka_name, email, image, phone, address, postcode, pre_order, go_live, opening_hours, role, token },
             });
         }
     }
@@ -148,16 +148,93 @@ exports.getSingleBuka = getSingleBuka;
  */
 // Update a Buka by ID
 const updateBuka = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
+    var _a;
     try {
-        const updatedBuka = yield buka_owner_model_1.default.findByIdAndUpdate(id, req.body, { new: true });
-        if (!updatedBuka) {
+        if (typeof req.body.opening_hours === "string") {
+            req.body.opening_hours = JSON.parse(req.body.opening_hours);
+        }
+        const buka = yield buka_owner_model_1.default.findByIdAndUpdate((_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a.id, req.body, { new: true });
+        if (!buka) {
             return res.status(404).json({ message: 'Buka not found' });
         }
-        res.json(updatedBuka);
+        let imageUrl = buka.image; // Default to the existing image URL
+        if (req.file) {
+            imageUrl = req.file.path; // The Cloudinary URL after upload
+        }
+        // Update user fields
+        buka.buka_name = req.body.buka_name || buka.buka_name;
+        buka.image = imageUrl; // Use the new or existing image URL
+        buka.phone = req.body.phone || buka.phone;
+        buka.address = req.body.address || buka.address;
+        buka.postcode = req.body.postcode || buka.postcode;
+        buka.pre_order = req.body.pre_order || buka.pre_order;
+        buka.go_live = req.body.go_live || buka.go_live;
+        buka.opening_hours = req.body.opening_hours || buka.opening_hours;
+        // Save the updated user
+        const updatedBuka = yield buka.save();
+        // Generate a new token with the updated user data
+        const token = generateToken({ _id: updatedBuka._id.toString(), role: updatedBuka.role });
+        res.status(200).json({
+            message: 'buka updated successfully',
+            buka: {
+                _id: updatedBuka._id,
+                buka_name: updatedBuka.buka_name,
+                email: updatedBuka.email,
+                image: updatedBuka.image,
+                phone: updatedBuka.phone,
+                address: updatedBuka.address,
+                postcode: updatedBuka.postcode,
+                pre_order: updatedBuka.pre_order,
+                go_live: updatedBuka.go_live,
+                opening_hours: updatedBuka.opening_hours,
+                token,
+            },
+        });
     }
     catch (error) {
+        console.log("this is an error message", error.message);
         res.status(500).json({ message: 'Something went wrong. Please try again...' });
     }
 });
 exports.updateBuka = updateBuka;
+/*
+ * @route   GET api/bukas
+ * @desc    Get All Bukas
+ * @access  Private
+ */
+const getAllBukas = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const bukas = yield buka_owner_model_1.default.find(); // Fetch all Bukas from the database
+        res.status(200).json(bukas);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Something went wrong. Please try again...', error });
+    }
+});
+exports.getAllBukas = getAllBukas;
+/*
+ * @route   GET api/buka/:id/reviews
+ * @desc    Get All Reviews for a Buka
+ * @access  Private
+ */
+const getBukaReviews = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { bukaId } = req.params;
+        // Find Buka and populate the reviews
+        const buka = yield buka_owner_model_1.default.findById(bukaId)
+            .populate({
+            path: 'reviews',
+            populate: { path: 'user', select: 'first_name last_name image' }
+        })
+            .exec();
+        if (!buka) {
+            return res.status(404).json({ message: 'Buka not found' });
+        }
+        // Return Buka with reviews
+        res.status(200).json(buka);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Failed to retrieve buka reviews', error });
+    }
+});
+exports.getBukaReviews = getBukaReviews;

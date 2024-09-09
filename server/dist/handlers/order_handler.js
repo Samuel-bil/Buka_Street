@@ -12,16 +12,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllOrders = exports.deleteOrder = exports.updateOrder = exports.getOrder = exports.createOrder = void 0;
+exports.createCheckout = exports.getAllOrders = exports.deleteOrder = exports.updateOrder = exports.getOrder = exports.createOrder = void 0;
 const order_model_1 = __importDefault(require("../models/order_model"));
+const uuid_1 = require("uuid");
+const stripeInit_1 = require("../utils/stripeInit");
 // Create a new order
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const newOrder = new order_model_1.default(req.body);
+        const { order_buka } = req.body;
+        if (!order_buka) {
+            return res.status(400).json({ message: 'Order Buka is required.' });
+        }
+        const order_number = (0, uuid_1.v4)();
+        const newOrder = new order_model_1.default(Object.assign(Object.assign({}, req.body), { order_number }));
         yield newOrder.save();
         res.status(201).json(newOrder);
     }
     catch (error) {
+        console.log(error.message);
         res.status(500).json({ message: 'Something went wrong. Please try again...' });
     }
 });
@@ -94,3 +102,40 @@ const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.getAllOrders = getAllOrders;
+/*
+ * @route   POST api/create-checkout
+ * @desc    Make a payment with stripe
+ * @access  Private
+ */
+const createCheckout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { orderId, cart } = req.body;
+        const session = yield stripeInit_1.stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            mode: "payment",
+            line_items: cart === null || cart === void 0 ? void 0 : cart.map((item) => {
+                return {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: item.cuisine_name,
+                            images: [item.image],
+                        },
+                        unit_amount: item.price * 100,
+                    },
+                    quantity: item.quantity,
+                };
+            }),
+            metadata: {
+                orderId,
+            },
+            success_url: 'https://buka-store-rqvo.vercel.app/success',
+            cancel_url: 'https://buka-store-rqvo.vercel.app/cancel',
+        });
+        res.json({ id: session.id });
+    }
+    catch (error) {
+        console.log(error.message);
+    }
+});
+exports.createCheckout = createCheckout;

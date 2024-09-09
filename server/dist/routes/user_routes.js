@@ -47,7 +47,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const user_handler_1 = require("../handlers/user_handler");
-const auth_1 = __importDefault(require("../middleware/auth"));
+const auth_1 = require("../middleware/auth");
+const multer_1 = __importDefault(require("../middleware/multer"));
 const router = express_1.default.Router();
 /**
  * @swagger
@@ -68,6 +69,7 @@ const router = express_1.default.Router();
  *         description: Bad request
  */
 router.post('/signup', user_handler_1.register);
+router.post("/role", user_handler_1.getUserRole);
 /**
  * @swagger
  * /api/users/signin:
@@ -124,7 +126,7 @@ router.post('/signin', user_handler_1.login);
  *       400:
  *         description: User not found
  */
-router.patch('/updateuser', auth_1.default, user_handler_1.updateUser);
+router.put('/updateuser', auth_1.protect, multer_1.default.single('image'), user_handler_1.updateUser);
 /**
  * @swagger
  * /api/users/changepassword:
@@ -152,7 +154,7 @@ router.patch('/updateuser', auth_1.default, user_handler_1.updateUser);
  *       400:
  *         description: Invalid password
  */
-router.patch('/changepassword', auth_1.default, user_handler_1.changePassword);
+router.patch('/changepassword', auth_1.protect, user_handler_1.changePassword);
 /**
  * @swagger
  * /api/users/getuser:
@@ -167,7 +169,7 @@ router.patch('/changepassword', auth_1.default, user_handler_1.changePassword);
  *       400:
  *         description: User not found
  */
-router.get('/getuser', auth_1.default, user_handler_1.getUser);
+router.get('/getuser', auth_1.protect, user_handler_1.getUser);
 /**
  * @swagger
  * /api/users/logout:
