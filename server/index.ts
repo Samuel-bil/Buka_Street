@@ -109,3 +109,5 @@ mongoose
   .catch((error: any) => {
     console.log(error);
   });
+
+  export default app;
